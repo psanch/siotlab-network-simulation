@@ -34,7 +34,10 @@ class Bounds:
 class Window:
 	"""Container to hold a context in which we associate IOTs to APs."""
 
-	def __init__(self, gen_iots: int=100, gen_aps: int=8, iots: [IOT]=[], aps: [AP]=[], bounds = Bounds()):
+	number_of_aps = 7 # Currently must <= 7 (for visuals) due to color implementation.
+	number_of_iots = 50 
+
+	def __init__(self, gen_iots: int='Window.number_of_iots', gen_aps: int='Window.number_of_aps', bounds = Bounds()):
 		""" Create a Window for IOT/AP association. May have to generate IOT/AP's.
 
 		Keyword Arguments:
@@ -47,8 +50,8 @@ class Window:
 
 		AP.ssid = 0
 		IOT.ssid = 0
-		self.iots = iots + [self.do_generate_iot(bounds) for _ in range(gen_iots)]
-		self.aps = aps + [self.do_generate_ap(bounds) for _ in range(gen_aps)]
+		self.iots = [self.do_generate_iot(bounds) for _ in range(Window.number_of_iots)]
+		self.aps = [self.do_generate_ap(bounds) for _ in range(Window.number_of_aps)]
 
 	def do_generate_iot(self, bounds: Bounds):
 		"""Instanciate an IOT based on constraints in bounds object (x,y) and IOT class (demand)."""
@@ -66,6 +69,14 @@ class Window:
 		s = 0
 		for device in self.iots:
 			s += device.get_dist(device.ap)
+		return s
+
+	def get_demand_weighted_sum_rssi(self) -> float:
+		"""Return the sum of all RSSIs for all APs to their associated IOTs"""
+
+		s = 0
+		for device in self.iots:
+			s += (device.get_dist(device.ap) * device.demand)
 		return s
 
 	def get_sum_remaining_capacity(self) -> int:

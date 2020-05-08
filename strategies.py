@@ -40,5 +40,29 @@ def greedy_rssi(w) -> bool:
 			return False
 	return True
 
+def greedy_demand_weighted_rssi(w) -> bool:
+	"""Implements a greedy approach, with a-priori sorting by IOT demand.
+	
+	Return:
+	Returns true on successful association. False otherwise.
+	"""
+	w.iots.sort(key=lambda x: x.demand, reverse=True)
+
+	for device in w.iots:
+		# Process the aps for validity and sort them by RSSI (bigger is better)
+		valid_aps = device.get_candidate_aps(w.aps)
+		distances = device.get_rssi_to_aps(valid_aps)
+		distances.sort(reverse=True, key = lambda x: x[0])
+
+		i = 0
+		num_aps = len(distances)
+		while i < num_aps:
+			if (device.do_associate(distances[i][1])) == True:
+				break
+			else:
+				i+=1
+		else:
+			return False
+	return True
 
 

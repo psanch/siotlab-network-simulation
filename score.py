@@ -3,86 +3,139 @@
 from objects import *
 from simulate import *
 from strategies import *
+from collections import defaultdict
+
+class Result:
+	"""Implements a class that holds the results for one instance of the experiment."""
+
+	def __init__(self, name, valid, scores: list):
+		self.name = name
+		self.scores = scores
+		self.valid = valid
+
+	def isValid(self) -> bool:
+		"""Determines whether or not this score is valid (not a failed attempt)."""
+
+		return self.valid
+
+	def __add__(self, other):
+		"""Defines addition '+' between two Result objects."""
+
+		l = []
+		for i in range(len(self.scores)):
+			l.append(self.scores[i] + other.scores[i])
+		return Result(self.name, self.valid and other.valid, l)
+
+	def __iadd__(self, other):
+		"""Defines incremental addition '+=' between two Result objects."""
+
+		self = self + other
+		return self
+
+	def __truediv__(self, other: int):
+		"""Defines true division '/' between two Result objects."""
+		
+		return Result(self.name, self.valid, [score/other for score in self.scores])
+
+	def __itruediv__(self, other: int):
+		"""Defines incremental true division '/=' between two Result objects."""
+		
+		self = self / other
+		return self 
+
+	def __repr__(self):
+		return f"Result({self.name}, {self.valid}, {self.scores})"
+
+	def __str__(self):
+		return f"Result({self.name}, {self.valid}, {self.scores})"
 
 class Score:
-	"""Implements a class that will run an experiment of n trials for a given strategy. Returns a comprehensive score."""
+	"""Implement a class that will run n experiments and return a comprehensive score.
 
-	number_of_aps = 7 # Currently must <= 7 (for visuals) due to color implementation.
-	number_of_iots = 50 
+	Object parameters controlled by class variables at object creation time. 
+	"""
+
+	number_of_trials = 10 # Guarantees this number of trials will be ran for all approaches.
 	verbose = False # Plot will block on input, any key will continue. Not good for batch tests.
-	approaches = { # Add strategies here.
+	
+	approaches = { # Add strategies here. This should be comprehensive.
 		'greedy_rssi': greedy_rssi,
-		'round_robin': round_robin
+		'round_robin': round_robin,
+		'greedy_demand_weighted_rssi' : greedy_demand_weighted_rssi
 	}
 
-	def __init__(self, approach: str, n: int=10):
-		"""Create a Score object that runs n tests for a given association strategy.
+	approaches_ordered = approaches.keys() # Don't touch; used for consistent key ordering
 
-		Side-effects:
-		self.rssi:		Holds the sum of rssi value among associated pairs.
-		self.waste:		Holds the sum of the remaining capacity for all APs.
-		self.success_rate:	Holds the percentage of attempts that successfully 
-					associated all IOTs to all APs.
-		"""
-		if Score.verbose == True:
-			print(f"\nRunning {approach} {n} times...")
+	scoring_methods = {
+		'get_sum_rssi': Window.get_sum_rssi,
+		'get_sum_remaining_capacity': Window.get_sum_remaining_capacity,
+		'get_demand_weighted_sum_rssi': Window.get_demand_weighted_sum_rssi
+	}
+	scoring_methods_ordered = scoring_methods.keys() # Don't touch; used for consistent key ordering
 
-		self.approach = approach
+	def __init__(self):
+		"""Initialize a Score object that runs n experiments."""
 
-		total_rssi = 0
-		total_capacity = 0
+		counter_scores = {}
+		self.results = []
+
+		approaches = Score.approaches_ordered
+		for approach in approaches: # Make a dummy scoring variable for compound addition
+			counter_scores[approach] = Result(approach, True, len(Score.scoring_methods_ordered) * [0.0])
+
+		temp = {}	# Dictionary will be used to store scores for a given window for all approaches
 
 		successful_attempts = 0
 		total_attempts = 0
-		
-		while successful_attempts < n:
+
+		while successful_attempts < Score.number_of_trials: # Guarantee n Windows where all approaches succeed
 			total_attempts += 1
+			w = Window()
 
-			# returns -1 if failure, else the score
-			scores = self.one_test(verbose='Score.verbose', approach=Score.approaches[approach]) 
+			fail_flag = False 
+			for approach in approaches: # Test every approach on w
+				temp[approach] = self.experiment(w, approach=approach)
+				if temp[approach].isValid() == False: # If any approach fails, break
+					fail_flag = True
+					break
 
-			if scores == (-1,-1): # Fail condition; try again
-				continue
+			if fail_flag == False: # Only consider the results if all approaches succeed
+				for approach in approaches:
+					counter_scores[approach] += temp[approach] # Add each approach's result to cumulative
+				successful_attempts += 1
 
-			rssi_score, capacity_score = scores
+		self.results.append(Result("Labels", False, [method for method in Score.scoring_methods_ordered]))
 
-			total_rssi += rssi_score
-			total_capacity += capacity_score
+		for approach in approaches: # Average over number of trials
+			counter_scores[approach] /= successful_attempts
+			self.results.append(counter_scores[approach])
 
-			successful_attempts += 1
-
-		self.rssi = total_rssi
-		self.waste = total_capacity
-		self.success_rate = successful_attempts / total_attempts
-
-		return None
-
-	def __str__(self):
-		return f"\nScore({self.approach}):\n\trssi:\t\t{self.rssi}\n\twaste:\t\t{self.waste}\n\tsuccess_rate:\t{self.success_rate}"
-
-	def one_test(self, verbose='Score.verbose', approach=round_robin) -> int:
-		"""Runs one instance of a specified test and return score.
+	def experiment(self, w: Window, verbose='Score.verbose', approach: str='round_robin') -> Result:
+		"""Run one instance of a specified test and return Result object.
 
 		Keyword Arguments:
+		w:		The Window to associate with approach
 		verbose:		True for real-time updates.
 		approach:	Pick the strategy for association to be used.
 
 		Return:
-		Score for the resulting association.
+		Result object with valid scores for all methods in Score.scoring_methods_ordered.
 		"""
 
-		# Set the parameters of the test.
-		w = Window(gen_iots = Score.number_of_iots, gen_aps = Score.number_of_aps)
+		scores = []
 
-		if approach(w) == False:
+		if Score.approaches[approach](w) == False: # Attempt approach on w
 			if verbose == True:
 				print("Association Failed!")
-			return (-1,-1)
-
-		rssi_score = w.get_sum_rssi()
-		capacity_score = w.get_sum_remaining_capacity()
-
+			return Result(approach, False, len(Score.scoring_methods_ordered) * [-1])
+		else:
+			# Creates a Result with valid scores for all methods in Score.scoring_methods_ordered.
+			for score_function_name in Score.scoring_methods_ordered:
+				scores.append(Score.scoring_methods[score_function_name](w))
+		
 		if verbose == True:
 			w.plot()
 
-		return rssi_score, capacity_score
+		return Result(approach, True, scores)
+
+	

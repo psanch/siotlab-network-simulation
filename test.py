@@ -21,24 +21,34 @@ Bounds.x_min = -100
 Bounds.y_max = 100
 Bounds.y_min = -100
 
-# objects.py
-max_capacity = 1000	# Determine the capacity for APs.
+Window.number_of_aps = 7 	# Currently must <= 7 (for visuals) due to color implementation.
+Window.number_of_iots = 50 
 
-min_demand = 0		# Determine the demand range for IOTs.
-max_demand = 100
+# objects.py
+AP.max_capacity = 1000	# Determine the capacity for APs.
+
+IOT.min_demand = 0		# Determine the demand range for IOTs.
+IOT.max_demand = 100
 
 # score.py
-number_of_aps = 7 	# Currently must <= 7 (for visuals) due to color implementation.
-number_of_iots = 50 
-verbose = False 	# Will block on input (Window.plot), any key will continue. Not good for batch tests.
-print(Score.approaches) # See implemented strategies here.
+Score.number_of_trials = 10 # Controls the number of trials ran for each approach.
+Score.verbose = False # Plot will block on input, any key will continue. Not good for batch tests.
+Score.approaches = { # Add strategies here. This should be comprehensive.
+	'greedy_rssi': greedy_rssi,
+	'round_robin': round_robin,
+	'greedy_demand_weighted_rssi' : greedy_demand_weighted_rssi
+}
+
+Score.scoring_methods = {
+	'get_sum_rssi': Window.get_sum_rssi,
+	'get_sum_remaining_capacity': Window.get_sum_remaining_capacity,
+	'get_demand_weighted_sum_rssi': Window.get_demand_weighted_sum_rssi
+}
+Score.scoring_methods_ordered = Score.scoring_methods.keys() # Don't touch. For consistent ordering.
 
 # === Testing Area === 
 
-s = Score('greedy_rssi', 100)
-print(s)
-s = Score('round_robin', 100)
-print(s)
-
+s = Score() 
+print(s.results)
 
 
