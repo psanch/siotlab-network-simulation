@@ -33,6 +33,22 @@ class AP(Node):
 
 		self.color = COLORS[self.ssid]
 
+	def __str__(self):
+		return f"AP[{self.ssid}]"
+
+	def __repr__(self):
+		return f"AP[{self.ssid}]"
+
+	def get_remaining_capacity(self) -> int:
+		return self.max_capacity - self.used_capacity
+
+	def get_load_factor(self) -> float:
+		return self.used_capacity/self.max_capacity
+
+	def print_stats(self):
+		print(f"Remaining capacity:\t{self.get_remaining_capacity()}")
+		print(f"Load Factor:\t{self.get_load_factor()}")
+
 class IOT(Node):
 	"""Model resource demands and AP association."""
 	
@@ -53,18 +69,23 @@ class IOT(Node):
 		IOT.ssid += 1
 
 		self.color = 'w'
+	
+	def __str__(self):
+		return f"IOT[{self.ssid}]"
 
-		if ap != None:
-			assert(self.do_associate(ap) == True)
+	def __repr__(self):
+		return f"IOT[{self.ssid}]"
 
-	def do_evaluate(self, ap) -> float:
-		"""Considers the effect of self on ap.
+	def do_evaluate(self, ap) -> bool:
+		"""Considers the validity of ap as a candidate for association.
 
 		Return:
-		float:	Returns the load factor of ap based on used/max capacity.
+		bool:	If true, ap is a valid candidate for association.
 		"""
-
-		return (ap.used_capacity + self.demand) / ap.max_capacity
+		if (ap.used_capacity + self.demand) / ap.max_capacity <= 1:
+			return True
+		else:
+			return False
 
 	def do_associate(self, ap) -> bool:
 		"""Try to associate self with ap. Updates ap capacity if successful. Returns status.
@@ -78,7 +99,7 @@ class IOT(Node):
 
 		"""
 
-		if self.do_evaluate(ap) > 1:
+		if self.do_evaluate(ap) == False:
 			return False
 		else:
 			self.ap = ap
@@ -86,6 +107,19 @@ class IOT(Node):
 			ap.used_capacity += self.demand
 			self.color = ap.color
 			return True
+
+	def get_candidate_aps(self, aps):
+		"""Return a list of valid aps. Filter defined in do_evaluate."""
+
+		return [ap for ap in aps if self.do_evaluate(ap) == True]
+
+	def get_rssi_to_aps(self, aps):
+		return [(1/(self.get_dist(ap)),ap) for ap in aps]
+
+	#def get_capacity_effect_on_aps(self,aps):
+
+	def print_stats(self):
+		print(f"Demand:\t{self.demand}")
 
 	def rand_demand():
 		"""Return a random demand value within the class constraints."""

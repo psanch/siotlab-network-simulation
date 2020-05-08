@@ -8,9 +8,9 @@ class Bounds:
 		""" Create a Bounds object based on x/y min/max.
 
 		x_max:		Maximum value for x-coordinates.
-		x_min:		Maximum value for x-coordinates.
+		x_min:		Minimum value for x-coordinates.
 		y_max:		Maximum value for x-coordinates.
-		y_min:		Maximum value for x-coordinates.
+		y_min:		Minimum value for x-coordinates.
 		"""
 
 		self.x_max = x_max
