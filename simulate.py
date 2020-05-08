@@ -37,6 +37,8 @@ class Window:
 		bounds:		Boundaries to constrain object generation if necessary.
 		"""
 
+		AP.ssid = 0
+		IOT.ssid = 0
 		self.iots = iots + [self.do_generate_iot(bounds) for _ in range(gen_iots)]
 		self.aps = aps + [self.do_generate_ap(bounds) for _ in range(gen_aps)]
 
@@ -49,6 +51,14 @@ class Window:
 		"""Instanciate an AP based on constraints in bounds object (x,y)."""
 
 		return AP(x=bounds.rand_x(), y=bounds.rand_y())
+
+	def get_sum_rssi(self) -> float:
+		"""Return the sum of all RSSIs for all APs to their associated IOTs"""
+
+		s = 0
+		for device in self.iots:
+			s += device.get_dist(device.ap)
+		return s
 
 	def plot(self):
 		fig = plt.figure()

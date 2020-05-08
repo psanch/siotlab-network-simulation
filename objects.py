@@ -114,7 +114,7 @@ class IOT(Node):
 		return [ap for ap in aps if self.do_evaluate(ap) == True]
 
 	def get_rssi_to_aps(self, aps):
-		return [(1/(self.get_dist(ap)),ap) for ap in aps]
+		return [(1/(self.get_dist(ap)**2),ap) for ap in aps]
 
 	#def get_capacity_effect_on_aps(self,aps):
 
