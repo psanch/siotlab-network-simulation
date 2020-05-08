@@ -22,8 +22,10 @@ class Score:
 		self.success_rate:	Holds the percentage of attempts that successfully 
 					associated all IOTs to all APs.
 		"""
+		if Score.verbose == True:
+			print(f"\nRunning {approach} {n} times...")
 
-		print(f"\nRunning {approach} {n} times...")
+		self.approach = approach
 
 		total_rssi = 0
 		total_capacity = 0
@@ -54,7 +56,7 @@ class Score:
 		return None
 
 	def __str__(self):
-		return f"rssi:\t\t{self.rssi}\nwaste:\t\t{self.waste}\nsuccess_rate:\t{self.success_rate}"
+		return f"\nScore({self.approach}):\n\trssi:\t\t{self.rssi}\n\twaste:\t\t{self.waste}\n\tsuccess_rate:\t{self.success_rate}"
 
 	def one_test(self, verbose='Score.verbose', approach=round_robin) -> int:
 		"""Runs one instance of a specified test and return score.

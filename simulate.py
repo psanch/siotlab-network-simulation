@@ -9,7 +9,7 @@ class Bounds:
 	y_max = 100
 	y_min = -100
 
-	def __init__(self, x_min: int=Bounds.x_min, x_max: int=Bounds.x_max, y_min: int=Bounds.y_min, y_max: int=Bounds.y_max):
+	def __init__(self):
 		""" Create a Bounds object based on x/y min/max.
 
 		x_max:		Maximum value for x-coordinates.
@@ -18,10 +18,10 @@ class Bounds:
 		y_min:		Minimum value for x-coordinates.
 		"""
 
-		self.x_max = x_max
-		self.x_min = x_min
-		self.y_max = y_max
-		self.y_min = y_min
+		self.x_max = Bounds.x_max
+		self.x_min = Bounds.x_min
+		self.y_max = Bounds.y_max
+		self.y_min = Bounds.y_min
 
 	def rand_x(self):
 		return randint(self.x_min, self.x_max)

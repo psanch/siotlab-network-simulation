@@ -33,9 +33,9 @@ print(Score.approaches) # See implemented strategies here.
 
 # === Testing Area === 
 
-s = Score('greedy_rssi', 1)
+s = Score('greedy_rssi', 100)
 print(s)
-s = Score('round_robin', 10)
+s = Score('round_robin', 100)
 print(s)
 
 

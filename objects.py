@@ -21,12 +21,12 @@ class AP(Node):
 	ssid = 0
 	max_capacity = 1000
 
-	def __init__(self, x=0, y=0, used_capacity=0, max_capacity=AP.max_capacity):
+	def __init__(self, x=0, y=0, used_capacity=0):
 		"""Create an AP Object with max_capacity."""
 		
 		super().__init__(x,y)
 		
-		self.max_capacity = max_capacity
+		self.max_capacity = AP.max_capacity
 		self.used_capacity = used_capacity
 		self.iots = []
 
