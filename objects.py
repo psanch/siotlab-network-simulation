@@ -21,7 +21,8 @@ class AP(Node):
 	ssid = 0
 
 	def __init__(self, x=0, y=0, used_capacity=0, max_capacity=1000):
-		"""Create AP Object with max_capacity."""
+		"""Create an AP Object with max_capacity."""
+		
 		super().__init__(x,y)
 		
 		self.max_capacity = max_capacity
@@ -40,12 +41,18 @@ class AP(Node):
 		return f"AP[{self.ssid}]"
 
 	def get_remaining_capacity(self) -> int:
+		"""Returns the remaining capacity of the AP."""
+
 		return self.max_capacity - self.used_capacity
 
 	def get_load_factor(self) -> float:
+		"""Returns the load factor of the AP."""
+
 		return self.used_capacity/self.max_capacity
 
 	def print_stats(self):
+		"""Prints both remaining capacity and load factor of the AP."""
+
 		print(f"Remaining capacity:\t{self.get_remaining_capacity()}")
 		print(f"Load Factor:\t{self.get_load_factor()}")
 
@@ -102,9 +109,10 @@ class IOT(Node):
 		if self.do_evaluate(ap) == False:
 			return False
 		else:
-			self.ap = ap
+			self.ap = ap # Create double-sided links
 			ap.iots.append(self)
-			ap.used_capacity += self.demand
+			
+			ap.used_capacity += self.demand # Update ap capacity and iot color
 			self.color = ap.color
 			return True
 
@@ -114,6 +122,8 @@ class IOT(Node):
 		return [ap for ap in aps if self.do_evaluate(ap) == True]
 
 	def get_rssi_to_aps(self, aps):
+		"""Returns a list of (rssi, ap) from the iot node."""
+
 		return [(1/(self.get_dist(ap)**2),ap) for ap in aps]
 
 	#def get_capacity_effect_on_aps(self,aps):
