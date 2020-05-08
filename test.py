@@ -1,52 +1,43 @@
 from objects import *
 from simulate import *
 from strategies import *
+from score import *
 
-associate_strategy = greedy_rssi
-"""
-round_robin
-greedy_rssi
-"""
+# The import statements (and code structure in general) isn't great for performance
+# but it will (hopefully) get us readability when modifying code. Here's a quick tutorial
+# on how to tweak the parameters of the simulation. 
 
-def one_test(verbose=False, associate_strategy=round_robin) -> int:
-	"""Runs one instance of a specified test and return score.
+# Parameter modification can be accessed through this file. They are stored in class
+# variables which are preserved in object variables upon construction. In other words,
+# an object is effectively immutable once it has been created. It would be trivial to
+# go back and add the option to save all results, but I am only saving the relevant stats
+# for the purposes of preserving memory. 
 
-	Keyword Arguments:
-	verbose:		True for real-time updates.
-	associate_strategy:	Pick the strategy for association to be used.
+# simulate.py
+Bounds.x_max = 100	# Determine the size of the area in which Nodes will exist. 
+Bounds.x_min = -100
+Bounds.y_max = 100
+Bounds.y_min = -100
 
-	Return:
-	Score for the resulting association.
-	"""
+# objects.py
+max_capacity = 1000	# Determine the capacity for APs.
 
-	# Set the parameters of the test.
-	w = Window(gen_iots = 70, gen_aps = 5)
+min_demand = 0		# Determine the demand range for IOTs.
+max_demand = 100
 
-	if associate_strategy(w) == False:
-		if verbose == True:
-			print("Association Failed!")
-		return -1
+# score.py
+number_of_aps = 7 	# Currently must <= 7 (for visuals) due to color implementation.
+number_of_iots = 50 
+verbose = False 	# Will block on input (Window.plot), any key will continue. Not good for batch tests.
+print(Score.approaches) # See implemented strategies here.
 
-	score = w.get_sum_rssi()
+# === Testing Area === 
 
-	if verbose == True:
-		print(f"SumRSSI: {score}")
-		w.plot()
+s = Score('greedy_rssi', 1)
+print(s)
+s = Score('round_robin', 10)
+print(s)
 
-	return score
 
-def n_tests(n=100, associate_strategy=round_robin):
-	"""Run N tests for a given association strategy; return the average score."""
-
-	res = 0
-	successful_tries = 0
-	while successful_tries < n:
-		attempt = one_test(verbose=False, associate_strategy=associate_strategy)
-		if attempt >= 0: # If an attempt fails to associate all iots to aps, ignore it.
-			successful_tries += 1
-			res += attempt
-	return (res / n)
-
-print(n_tests(associate_strategy = greedy_rssi))
 
 

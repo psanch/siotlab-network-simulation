@@ -19,8 +19,9 @@ class AP(Node):
 	"""Model (remaining) capacity based on iot nodes that are associated with it."""
 	
 	ssid = 0
+	max_capacity = 1000
 
-	def __init__(self, x=0, y=0, used_capacity=0, max_capacity=1000):
+	def __init__(self, x=0, y=0, used_capacity=0, max_capacity=AP.max_capacity):
 		"""Create an AP Object with max_capacity."""
 		
 		super().__init__(x,y)
@@ -32,7 +33,7 @@ class AP(Node):
 		self.ssid = AP.ssid
 		AP.ssid += 1
 
-		self.color = COLORS[self.ssid]
+		self.color = COLORS[self.ssid % len(COLORS)]
 
 	def __str__(self):
 		return f"AP[{self.ssid}]"
@@ -64,7 +65,7 @@ class IOT(Node):
 
 	ssid = 0
 	
-	def __init__(self, x=0, y=0, demand=0, ap=None):
+	def __init__(self, x=0, y=0, demand=randint(min_demand,max_demand), ap=None):
 		""" Create IOT object with resource demand and (optional) an ap to be associated to."""
 
 		super().__init__(x,y)
@@ -124,7 +125,15 @@ class IOT(Node):
 	def get_rssi_to_aps(self, aps):
 		"""Returns a list of (rssi, ap) from the iot node."""
 
-		return [(1/(self.get_dist(ap)**2),ap) for ap in aps]
+		l = []
+		for ap in aps:
+			tmp = self.get_dist(ap) ** 2
+			if tmp == 0:
+				tmp = 1
+			else:
+				tmp = 1/tmp
+			l.append((tmp, ap))
+		return l
 
 	#def get_capacity_effect_on_aps(self,aps):
 

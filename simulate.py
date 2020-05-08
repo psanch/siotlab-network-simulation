@@ -2,9 +2,14 @@ from random import randint
 from objects import *
 
 class Bounds:
-	"""Container to hold 2-d cartesian coordinates."""
+	"""Container to hold objects with 2-d cartesian coordinates."""
 
-	def __init__(self, x_min: int=-100, x_max: int=100, y_min: int=-100, y_max: int=100):
+	x_max = 100
+	x_min = -100
+	y_max = 100
+	y_min = -100
+
+	def __init__(self, x_min: int=Bounds.x_min, x_max: int=Bounds.x_max, y_min: int=Bounds.y_min, y_max: int=Bounds.y_max):
 		""" Create a Bounds object based on x/y min/max.
 
 		x_max:		Maximum value for x-coordinates.
@@ -25,6 +30,7 @@ class Bounds:
 		return randint(self.y_min, self.y_max)
 
 class Window:
+	"""Container to hold a context in which we associate IOTs to APs."""
 
 	def __init__(self, gen_iots: int=100, gen_aps: int=8, iots: [IOT]=[], aps: [AP]=[], bounds = Bounds()):
 		""" Create a Window for IOT/AP association. May have to generate IOT/AP's.
@@ -60,7 +66,20 @@ class Window:
 			s += device.get_dist(device.ap)
 		return s
 
+	def get_sum_remaining_capacity(self) -> int:
+		"""Return the sum of remaining capacity for all APs."""
+
+		remaining = 0
+		for ap in self.aps:
+			remaining += ap.get_remaining_capacity()
+		return remaining
+
 	def plot(self):
+		"""Plot the Window and assign colors to nodes.
+		
+		WARNING: BLOCKS!! Note the call to input().
+		"""
+		
 		fig = plt.figure()
 
 		for i in self.iots:

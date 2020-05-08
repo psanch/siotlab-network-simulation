@@ -1,5 +1,10 @@
-
 def round_robin(w) -> bool:
+	"""Implements a round-robin association strategy where iots are associated their ssid modulo number of APs.
+
+	Return:
+	Returns true on successful association. False otherwise.
+	"""
+
 	m = len(w.aps)
 	i = 0
 
@@ -10,6 +15,11 @@ def round_robin(w) -> bool:
 	return True
 
 def greedy_rssi(w) -> bool:
+	"""Implements a greedy approach using RSSI (1/euclidean distance) as the heuristic.
+
+	Return:
+	Returns true on successful association. False otherwise.
+	"""
 
 	for device in w.iots:
 		# Process the aps for validity and sort them by RSSI (bigger is better)
