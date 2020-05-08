@@ -1,3 +1,5 @@
+"""Implements various strategies for associating IOTs to APs. Implement yours here."""
+
 def round_robin(w) -> bool:
 	"""Implements a round-robin association strategy where iots are associated their ssid modulo number of APs.
 

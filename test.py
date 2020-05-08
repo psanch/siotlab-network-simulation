@@ -1,3 +1,5 @@
+"""Interface for the IOT-AP association experiment."""
+
 from objects import *
 from simulate import *
 from strategies import *
@@ -37,7 +39,6 @@ s = Score('greedy_rssi', 100)
 print(s)
 s = Score('round_robin', 100)
 print(s)
-
 
 
 

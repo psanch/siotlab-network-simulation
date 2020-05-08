@@ -1,3 +1,5 @@
+"""Implements the Node, AP and IOT classes."""
+
 from random import randint
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,9 +7,10 @@ import matplotlib.pyplot as plt
 COLORS = ['b','g','r','c','m','y','k','w']
 
 class Node:
-	"""Store position on a cartesian coordinate plane."""
+	"""Used by children to store position on a cartesian coordinate plane."""
 	
 	def __init__(self, x=0, y=0):
+		"""Instantiate a node object with 2-d coordinates."""
 		self.x = x
 		self.y = y
 

@@ -1,3 +1,5 @@
+"""Implements the Bounds and Window classes. Location and simulation infrastructure for the experiment."""
+
 from random import randint
 from objects import *
 

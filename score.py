@@ -1,3 +1,5 @@
+"""Implements the Score class. Allows the scoring of different approaches on a given Window."""
+
 from objects import *
 from simulate import *
 from strategies import *
