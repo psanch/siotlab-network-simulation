@@ -35,7 +35,7 @@ class Window:
 	"""Container to hold a context in which we associate IOTs to APs."""
 
 	number_of_aps = 7 # Currently must <= 7 (for visuals) due to color implementation.
-	number_of_iots = 50 
+	number_of_iots = 50
 
 	def __init__(self, gen_iots: int='Window.number_of_iots', gen_aps: int='Window.number_of_aps', bounds = Bounds()):
 		""" Create a Window for IOT/AP association. May have to generate IOT/AP's.
@@ -89,10 +89,10 @@ class Window:
 
 	def plot(self):
 		"""Plot the Window and assign colors to nodes.
-		
+
 		WARNING: BLOCKS!! Note the call to input().
 		"""
-		
+
 		fig = plt.figure()
 
 		for i in self.iots:
@@ -103,4 +103,3 @@ class Window:
 
 		fig.show()
 		input()
-

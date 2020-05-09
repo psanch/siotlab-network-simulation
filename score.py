@@ -10,7 +10,7 @@ class Result:
 
 	def __init__(self, name, valid, scores: list):
 		self.name = name
-		self.scores = scores
+		self.scores = scores	# each index will hold a different type of score from Score.scoring_methods
 		self.valid = valid
 
 	def isValid(self) -> bool:
@@ -33,15 +33,15 @@ class Result:
 		return self
 
 	def __truediv__(self, other: int):
-		"""Defines true division '/' between two Result objects."""
-		
+		"""Defines true division '/' between a Result and Int object."""
+
 		return Result(self.name, self.valid, [score/other for score in self.scores])
 
 	def __itruediv__(self, other: int):
 		"""Defines incremental true division '/=' between two Result objects."""
-		
+
 		self = self / other
-		return self 
+		return self
 
 	def __repr__(self):
 		return f"Result({self.name}, {self.valid}, {self.scores})"
@@ -52,12 +52,12 @@ class Result:
 class Score:
 	"""Implement a class that will run n experiments and return a comprehensive score.
 
-	Object parameters controlled by class variables at object creation time. 
+	Object parameters controlled by class variables at object creation time.
 	"""
 
 	number_of_trials = 10 # Guarantees this number of trials will be ran for all approaches.
 	verbose = False # Plot will block on input, any key will continue. Not good for batch tests.
-	
+
 	approaches = { # Add strategies here. This should be comprehensive.
 		'greedy_rssi': greedy_rssi,
 		'round_robin': round_robin,
@@ -78,6 +78,7 @@ class Score:
 
 		counter_scores = {}
 		self.results = []
+		self.cumulative = []
 
 		approaches = Score.approaches_ordered
 		for approach in approaches: # Make a dummy scoring variable for compound addition
@@ -92,7 +93,7 @@ class Score:
 			total_attempts += 1
 			w = Window()
 
-			fail_flag = False 
+			fail_flag = False
 			for approach in approaches: # Test every approach on w
 				temp[approach] = self.experiment(w, approach=approach)
 				if temp[approach].isValid() == False: # If any approach fails, break
@@ -103,12 +104,17 @@ class Score:
 				for approach in approaches:
 					counter_scores[approach] += temp[approach] # Add each approach's result to cumulative
 				successful_attempts += 1
+				self.results.append([temp[approach] for approach in approaches])
 
-		self.results.append(Result("Labels", False, [method for method in Score.scoring_methods_ordered]))
+			#TODO - implement Window.cleanup()
+
+		self.cumulative.append(Result("Labels", False, [method for method in Score.scoring_methods_ordered]))
+
+
 
 		for approach in approaches: # Average over number of trials
 			counter_scores[approach] /= successful_attempts
-			self.results.append(counter_scores[approach])
+			self.cumulative.append(counter_scores[approach])
 
 	def experiment(self, w: Window, verbose='Score.verbose', approach: str='round_robin') -> Result:
 		"""Run one instance of a specified test and return Result object.
@@ -132,10 +138,8 @@ class Score:
 			# Creates a Result with valid scores for all methods in Score.scoring_methods_ordered.
 			for score_function_name in Score.scoring_methods_ordered:
 				scores.append(Score.scoring_methods[score_function_name](w))
-		
+
 		if verbose == True:
 			w.plot()
 
 		return Result(approach, True, scores)
-
-	
