@@ -99,14 +99,13 @@ class Score:
 				if temp[approach].isValid() == False: # If any approach fails, break
 					fail_flag = True
 					break
+				w.cleanup()
 
 			if fail_flag == False: # Only consider the results if all approaches succeed
 				for approach in approaches:
 					counter_scores[approach] += temp[approach] # Add each approach's result to cumulative
 				successful_attempts += 1
 				self.results.append([temp[approach] for approach in approaches])
-
-			#TODO - implement Window.cleanup()
 
 		self.cumulative.append(Result("Labels", False, [method for method in Score.scoring_methods_ordered]))
 
