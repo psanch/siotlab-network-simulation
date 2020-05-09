@@ -110,8 +110,6 @@ class Score:
 
 		self.cumulative.append(Result("Labels", False, [method for method in Score.scoring_methods_ordered]))
 
-
-
 		for approach in approaches: # Average over number of trials
 			counter_scores[approach] /= successful_attempts
 			self.cumulative.append(counter_scores[approach])

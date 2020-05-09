@@ -8,7 +8,7 @@ COLORS = ['b','g','r','c','m','y','k','w']
 
 class Node:
 	"""Used by children to store position on a cartesian coordinate plane."""
-	
+
 	def __init__(self, x=0, y=0):
 		"""Instantiate a node object with 2-d coordinates."""
 		self.x = x
@@ -20,15 +20,15 @@ class Node:
 
 class AP(Node):
 	"""Model (remaining) capacity based on iot nodes that are associated with it."""
-	
+
 	ssid = 0
 	max_capacity = 1000
 
 	def __init__(self, x=0, y=0, used_capacity=0):
 		"""Create an AP Object with max_capacity."""
-		
+
 		super().__init__(x,y)
-		
+
 		self.max_capacity = AP.max_capacity
 		self.used_capacity = used_capacity
 		self.iots = []
@@ -54,6 +54,17 @@ class AP(Node):
 
 		return self.used_capacity/self.max_capacity
 
+	def disconnect(self) -> float:
+		"""Disconnects AP from all nodes, for both links."""
+
+		for iot in self.iots:
+			iot.ap = None
+			iot.color = 'w'
+
+		self.iots = []
+
+		self.used_capacity = 0
+
 	def print_stats(self):
 		"""Prints both remaining capacity and load factor of the AP."""
 
@@ -62,12 +73,12 @@ class AP(Node):
 
 class IOT(Node):
 	"""Model resource demands and AP association."""
-	
+
 	min_demand = 0
 	max_demand = 100
 
 	ssid = 0
-	
+
 	def __init__(self, x=0, y=0, demand=randint(min_demand,max_demand), ap=None):
 		""" Create IOT object with resource demand and (optional) an ap to be associated to."""
 
@@ -80,7 +91,7 @@ class IOT(Node):
 		IOT.ssid += 1
 
 		self.color = 'w'
-	
+
 	def __str__(self):
 		return f"IOT[{self.ssid}]"
 
@@ -105,7 +116,7 @@ class IOT(Node):
 		ap:		AP to be associated with.
 
 		Return:
-		bool:	Returns true and updates ap.used_capacity if association was successful. 
+		bool:	Returns true and updates ap.used_capacity if association was successful.
 				No side effects upon False.
 
 		"""
@@ -115,7 +126,7 @@ class IOT(Node):
 		else:
 			self.ap = ap # Create double-sided links
 			ap.iots.append(self)
-			
+
 			ap.used_capacity += self.demand # Update ap capacity and iot color
 			self.color = ap.color
 			return True

@@ -53,6 +53,12 @@ class Window:
 		self.iots = [self.do_generate_iot(bounds) for _ in range(Window.number_of_iots)]
 		self.aps = [self.do_generate_ap(bounds) for _ in range(Window.number_of_aps)]
 
+	def cleanup(self):
+		"""Return the Window to its initial (unassociated) state."""
+
+		for ap in self.aps:
+			ap.disconnect()
+
 	def do_generate_iot(self, bounds: Bounds):
 		"""Instanciate an IOT based on constraints in bounds object (x,y) and IOT class (demand)."""
 
