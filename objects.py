@@ -98,6 +98,11 @@ class IOT(Node):
 	def __repr__(self):
 		return f"IOT[{self.ssid}]"
 
+	def is_associated(self):
+		"""Return a boolean indiciating if self is associated based on self.ap."""
+
+		return self.ap != None # None = False, else = True
+
 	def do_evaluate(self, ap) -> bool:
 		"""Considers the validity of ap as a candidate for association.
 
@@ -131,6 +136,21 @@ class IOT(Node):
 			self.color = ap.color
 			return True
 
+	def edge_priority_function(self, ap):
+		"""Return the custom cost between self and ap."""
+		d = self.get_dist(ap)
+		if d == 0:
+			d = 1
+		else:
+			d = 1 / d
+		return d * ap.get_remaining_capacity()
+
+	def get_edge_weights(self, aps):
+		"""Return a list of tuples (self, ap, priority) based on consiering the aps from the iot."""
+
+		return [(self, ap, self.edge_priority_function(ap)) for ap in aps]
+
+
 	def get_candidate_aps(self, aps):
 		"""Return a list of valid aps. Filter defined in do_evaluate."""
 
@@ -148,8 +168,6 @@ class IOT(Node):
 				tmp = 1/tmp
 			l.append((tmp, ap))
 		return l
-
-	#def get_capacity_effect_on_aps(self,aps):
 
 	def print_stats(self):
 		print(f"Demand:\t{self.demand}")

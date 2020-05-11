@@ -13,11 +13,6 @@ class Result:
 		self.scores = scores	# each index will hold a different type of score from Score.scoring_methods
 		self.valid = valid
 
-	def isValid(self) -> bool:
-		"""Determines whether or not this score is valid (not a failed attempt)."""
-
-		return self.valid
-
 	def __add__(self, other):
 		"""Defines addition '+' between two Result objects."""
 
@@ -38,7 +33,7 @@ class Result:
 		return Result(self.name, self.valid, [score/other for score in self.scores])
 
 	def __itruediv__(self, other: int):
-		"""Defines incremental true division '/=' between two Result objects."""
+		"""Defines incremental true division '/=' between a Result and an Int object."""
 
 		self = self / other
 		return self
@@ -49,19 +44,26 @@ class Result:
 	def __str__(self):
 		return f"Result({self.name}, {self.valid}, {self.scores})"
 
+	def isValid(self) -> bool:
+		"""Determines whether or not this score is valid (not a failed attempt)."""
+
+		return self.valid
+
 class Score:
 	"""Implement a class that will run n experiments and return a comprehensive score.
 
 	Object parameters controlled by class variables at object creation time.
 	"""
 
-	number_of_trials = 10 # Guarantees this number of trials will be ran for all approaches.
-	verbose = False # Plot will block on input, any key will continue. Not good for batch tests.
+	number_of_trials = 10 # Guarantees this number of trials will be ran for all approaches. 
+	verbose = False # Not good for batch tests.
+	plot = False# Plot will block on input, any key will continue.
 
-	approaches = { # Add strategies here. This should be comprehensive.
+	approaches = { # Add strategies here. This dict should be comprehensive.
 		'greedy_rssi': greedy_rssi,
 		'round_robin': round_robin,
-		'greedy_demand_weighted_rssi' : greedy_demand_weighted_rssi
+		'greedy_demand_weighted_rssi': greedy_demand_weighted_rssi,
+		'greedy_edge_based': greedy_edge_based
 	}
 
 	approaches_ordered = approaches.keys() # Don't touch; used for consistent key ordering
@@ -97,6 +99,8 @@ class Score:
 			for approach in approaches: # Test every approach on w
 				temp[approach] = self.experiment(w, approach=approach)
 				if temp[approach].isValid() == False: # If any approach fails, break
+					if Score.verbose:
+						print(f"{approach} failed.")
 					fail_flag = True
 					break
 				w.cleanup()
@@ -105,7 +109,8 @@ class Score:
 				for approach in approaches:
 					counter_scores[approach] += temp[approach] # Add each approach's result to cumulative
 				successful_attempts += 1
-				self.results.append([temp[approach] for approach in approaches])
+				self.results.append([[data for data in temp[approach].scores] for approach in approaches])
+
 
 		self.cumulative.append(Result("Labels", False, [method for method in Score.scoring_methods_ordered]))
 
@@ -113,7 +118,7 @@ class Score:
 			counter_scores[approach] /= successful_attempts
 			self.cumulative.append(counter_scores[approach])
 
-	def experiment(self, w: Window, verbose='Score.verbose', approach: str='round_robin') -> Result:
+	def experiment(self, w: Window, approach: str='round_robin') -> Result:
 		"""Run one instance of a specified test and return Result object.
 
 		Keyword Arguments:
@@ -128,7 +133,7 @@ class Score:
 		scores = []
 
 		if Score.approaches[approach](w) == False: # Attempt approach on w
-			if verbose == True:
+			if Score.verbose == True:
 				print("Association Failed!")
 			return Result(approach, False, len(Score.scoring_methods_ordered) * [-1])
 		else:
@@ -136,7 +141,7 @@ class Score:
 			for score_function_name in Score.scoring_methods_ordered:
 				scores.append(Score.scoring_methods[score_function_name](w))
 
-		if verbose == True:
+		if Score.plot == True:
 			w.plot()
 
 		return Result(approach, True, scores)
