@@ -63,7 +63,8 @@ class Score:
 		'greedy_rssi': greedy_rssi,
 		'round_robin': round_robin,
 		'greedy_demand_weighted_rssi': greedy_demand_weighted_rssi,
-		'greedy_edge_based': greedy_edge_based
+		'greedy_edge_based': greedy_edge_based,
+		'greedy_resorted_edge_based': greedy_resorted_edge_based,
 	}
 
 	approaches_ordered = approaches.keys() # Don't touch; used for consistent key ordering

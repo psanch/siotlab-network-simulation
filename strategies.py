@@ -91,6 +91,50 @@ def greedy_edge_based(w) -> bool:
 
 	return num_iots_associated == num_iots_total
 
+def greedy_resorted_edge_based(w) -> bool:
+	"""Implements a greedy approach that considers the priority of edges instead of vertices for each iot node associated.
+
+	Recognize that the validity (trueness) of the edge_list decreases over time,
+	since ap capacity (a variable in sorting the list) changes when iots are
+	associated. This change is not reflected in the ordering of the list in
+	prior approaches. So, after each iot is associated, we re-sort the list.
+
+	TODO: when sorting, also prune the list to remove any instances of associated iots.
+
+	Return:
+	Returns true on successful association. False otherwise.
+	"""
+
+	def get_sorted_edge_list(w) -> list:
+		"""Helper function to setup the list of edges and sort them by edge_priority."""
+
+		edge_list = [] # (iot, ap, edge_priority(iot,ap))
+		for device in w.iots:
+			if device.is_associated(): # ignore iots that are already associated.
+				continue
+			edge_list += device.get_edge_weights(w.aps)
+		
+		edge_list.sort(key=lambda x: x[2], reverse=True) # Biggest edge_priority first.
+		return edge_list
+
+	edge_list = get_sorted_edge_list(w)
+
+	# Go through the list and associate by edge.
+	num_iots_total = len(w.iots)
+	num_iots_associated = 0
+	for iot, ap, edge_priority in edge_list:
+		if iot.is_associated() or num_iots_associated == num_iots_total: 
+			continue
+		else:
+			if iot.do_associate(ap) == True:
+				num_iots_associated += 1
+
+				# Get the updated edge list
+				edge_list = get_sorted_edge_list(w)
+
+
+	return num_iots_associated == num_iots_total
+
 
 
 

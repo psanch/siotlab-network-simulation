@@ -37,10 +37,11 @@ Score.verbose = False # Not good for batch tests.
 Score.plot = False # Plot will block and wait for input from the user. Press any key.
 
 Score.approaches = { # Add strategies here. This should be comprehensive; comment out to ommit.
-	'greedy_rssi': greedy_rssi,
+	#'greedy_rssi': greedy_rssi,
 	#'round_robin': round_robin,
-	'greedy_demand_weighted_rssi' : greedy_demand_weighted_rssi,
-	'greedy_edge_based' : greedy_edge_based
+	#'greedy_demand_weighted_rssi' : greedy_demand_weighted_rssi,
+	'greedy_edge_based' : greedy_edge_based,
+	'greedy_resorted_edge_based': greedy_resorted_edge_based,
 }
 Score.approaches_ordered = list(Score.approaches.keys()) # Don't touch; used for consistent key ordering
 

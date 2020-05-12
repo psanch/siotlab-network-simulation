@@ -52,7 +52,7 @@ class AP(Node):
 	def get_load_factor(self) -> float:
 		"""Returns the load factor of the AP."""
 
-		return self.used_capacity/self.max_capacity
+		return self.used_capacity / self.max_capacity
 
 	def disconnect(self) -> float:
 		"""Disconnects AP from all nodes, for both links."""
