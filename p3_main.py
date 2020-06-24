@@ -13,6 +13,10 @@ from wsn import WSN
 from simulate import Window, Bounds
 from objects import IOT, AP
 
+def create_c_mat(m,n):
+    c = np.zeros((m, n), dtype=int)
+    c = (np.random.randint(0, m, size=n) == np.arange(m).reshape(-1, 1)).astype(int)
+    return c  
 
 def cxTwoPointCopy(ind1, ind2):
 
@@ -53,17 +57,12 @@ def cxTwoPointCopy(ind1, ind2):
     return ind1, ind2
 
 
-def create_c_mat(m,n):
-    c = np.zeros((m, n), dtype=int)
-    c = (np.random.randint(0, m, size=n) == np.arange(m).reshape(-1, 1)).astype(int)
-    return c 
-
-def evaluate(individual):
+def evaluate_rate_nap(individual):
     wsn = WSN.getInstance() 
     RT  = wsn.get_rates()
-    C  = individual[0] 
-    f1 = sum(sum(RT*C))
-    f2 = len(np.where(~C.any(axis=1)))
+    C  = individual
+    f1 = math.log10(1 + sum(sum(RT*C))) 
+    f2 = C.shape[0] - len(np.where(~C.any(axis=1))) # Number of Rows that contains at least 1
     # a = []
     # for j, row in enumerate(C):
     #     if not all( v == 0 for v in row):
@@ -84,7 +83,7 @@ def feasible(individual):
     
     wsn = WSN.getInstance() 
     RT  = wsn.get_rates()
-    C = individual[0]
+    C = individual
     cons_1 = 0 # 5c
     cons_2 = 0 # 5d
     cons_3 = 0 # 5e
@@ -131,23 +130,34 @@ random.seed(100)
 w = Window()
 wsn = WSN()
 iot_list = w.iots
+
 ap_list = w.aps
-wsn.calc_PL(ap_list,iot_list)
+M = len(ap_list)
+N = len(iot_list)
+NDIM = 10
+wsn.calc_PR(ap_list,iot_list)
 wsn.calc_SNR()
 wsn.calc_rate()
 print(wsn.get_rates())
 
 
-#DEAP starts here
-##############################################################################
+# #DEAP starts here
+# ##############################################################################
 
 creator.create("FitnessMulti", base.Fitness, weights=(1.0,-1.0))
 creator.create("Individual", np.ndarray, fitness=creator.FitnessMulti)
 
 toolbox = base.Toolbox()
 
-toolbox.register("attr_bool", random.randint, 0, 1)
-toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, n=100)
-toolbox.register("population", tools.initRepeat, list toolbox.individual)
+toolbox.register("attr", create_c_mat, M, N)
+toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr, n=10)
+toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
+toolbox.register("evaluate", evaluate_rate_nap)
+toolbox.register("mate", cxTwoPointCopy)
+toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.decorate("evaluate", tools.DeltaPenalty(feasible, 1.0))
+
+pop = toolbox.population(n=20)
 

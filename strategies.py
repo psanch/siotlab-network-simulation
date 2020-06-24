@@ -136,6 +136,43 @@ def greedy_resorted_edge_based(w) -> bool:
 	return num_iots_associated == num_iots_total
 
 
+def create_a_graph(w) -> None :
+    """
+    Parameters
+    ----------
+    w : TYPE
+        window 
+
+    Returns
+    -------
+    None 
+    """
+    i = 0 
+    
+def mdp_based(w) -> bool:
+	"""Implement MDP 
+
+	Return:
+	Returns true on successful association. False otherwise.
+	"""
+
+	# Setup the list of edges and sort them by edge_priority.
+	edge_list = [] # (iot, ap, edge_priority(iot,ap))
+	for device in w.iots:
+		edge_list += device.get_edge_weights(w.aps)
+	edge_list.sort(key=lambda x: x[2], reverse=True) # Biggest edge_priority first.
+
+	# Go through the list and associate by edge.
+	num_iots_total = len(w.iots)
+	num_iots_associated = 0
+	for iot, ap, edge_priority in edge_list:
+		if iot.is_associated() or num_iots_associated == num_iots_total: 
+			continue
+		else:
+			if iot.do_associate(ap) == True:
+				num_iots_associated += 1
+
+	return num_iots_associated == num_iots_total
 
 
 
