@@ -12,6 +12,7 @@ from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
+import pdb
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", numpy.ndarray, fitness=creator.FitnessMax)
@@ -53,16 +54,16 @@ def cxTwoPointCopy(ind1, ind2):
 
     return ind1, ind2
 
-    
+
 toolbox.register("evaluate", evalOneMax)
 toolbox.register("mate", cxTwoPointCopy)
 toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
 toolbox.register("select", tools.selTournament, tournsize=3)
 
+
 def main():
     random.seed(64)
-    import pdb;pdb.set_trace()
-    
+        
     pop = toolbox.population(n=300)
     # Numpy equality function (operators.eq) between two arrays returns the
     # equality element wise, which raises an exception in the if similar()
