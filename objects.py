@@ -25,6 +25,7 @@ class AP(Node):
 
     ssid = 0
     max_capacity = 1000
+    RANGE = 1250
 
     def __init__(self, x=0, y=0, used_capacity=0):
         """Create an AP Object with max_capacity."""
@@ -175,7 +176,8 @@ class IOT(Node):
 
     def calc_power_loss(self, ap):
  
-        dist = self.get_dist(ap) #Rji distji     
+        dist = self.get_dist(ap) #Rji distji   
+        #if dist > ap.RANGE: return 0.0
         pl = IOT.PL_0 + 10*IOT.GAMMA*math.log10(dist/IOT.R_0) #+ X 
         p_r = IOT.P_Tx - pl
         return p_r

@@ -8,7 +8,7 @@ import math
 
 class WSN:
     __instance = None
-    B = 20000000 #MHz
+    B = 2.4 * 10**9 #0000000 #MHz
     SIGMA = 3.92 #Sigma
     @staticmethod 
     def getInstance():
@@ -25,17 +25,22 @@ class WSN:
         self.PR  = None #Matrix 
         self.SNR = None 
         self.RT = None 
+        self.Demands = None #the demands from all devices to one access point 
     def calc_PR(self, aps, devices):
         """calculate the PL matrix"""
         
         self.PR = np.zeros(shape=(len(aps), len(devices)))
+        self.Demands = np.zeros(len(devices)) #this is a vector 
         for d in devices:
             for ap in aps: 
                 self.PR[ap.ssid][d.ssid] = d.calc_power_loss(ap)
-            
+            self.Demands[d.ssid] = d.demand 
+                
     def calc_SNR(self):
         self.SNR= np.zeros(shape = self.PR.shape)
         row_sum = np.sum(self.PR,axis=1)
+        
+        
         sigma_sqr = WSN.SIGMA**2 
         for j in range(self.SNR.shape[0]):
             for i in range(self.SNR.shape[1]):
@@ -49,9 +54,9 @@ class WSN:
         
     def get_rates(self):
         return self.RT
-
+ 
         
-      
+     
             
             
         
