@@ -41,6 +41,7 @@ def cxTwoPointCopy(ind1, ind2):
         >>> print(b)
         [5 6 7 8]
     """
+    #pdb.set_trace()
     size = len(ind1)
     cxpoint1 = random.randint(1, size)
     cxpoint2 = random.randint(1, size - 1)

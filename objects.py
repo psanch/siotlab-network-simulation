@@ -24,6 +24,8 @@ class AP(Node):
     """Model (remaining) capacity based on iot nodes that are associated with it."""
 
     ssid = 0
+    P_Tx = 158  # wifi antenna on raspi 3 is 138 mW so we assumed 158 of Raspi4
+    GAMMA = 2.2
     max_capacity = 1000
     RANGE = 1250
 
@@ -57,7 +59,7 @@ class AP(Node):
 
         return self.used_capacity / self.max_capacity
 
-    def disconnect(self) -> float:
+    def disconnect(self):
         """Disconnects AP from all nodes, for both links."""
 
         for iot in self.iots:
@@ -174,7 +176,7 @@ class IOT(Node):
             l.append((tmp, ap))
         return l
 
-    def calc_power_loss(self, ap):
+    def calc_power_received(self, ap):
  
         dist = self.get_dist(ap) #Rji distji   
         #if dist > ap.RANGE: return 0.0
